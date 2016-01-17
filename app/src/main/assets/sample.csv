@@ -1,0 +1,8 @@
+Welcome to TaskKeeper,,none,,false
+You can make tasks and keep track of them here,,none,,false
+Color code your tasks to keep track of thier priority,,none,,false
+Red tasks are urgent,,Red,,false
+Yellow Tasks are tasks you should be aware of,,Yellow,,false
+And Green tasks are tasks you can wait a bit on,,Green,,false
+And whenever you finish a task, just click the checkbox to mark it done. It's color changes to let you know it's taken care of,,none,,true
+Clicking the 'Delete Checked' button will delete all your tasks marked 'Done' so you can focus on what's left,,none,,false

@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.kyostudios.taskkeeper.MainActivity" >
+    <item android:id="@+id/action_about"
+        android:title="About"
+        android:orderInCategory="99"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_delete_done"
+        android:title="Delete Done"
+        android:orderInCategory="97"
+        app:showAsAction="always"
+        android:icon="@drawable/action_delete_done"/>
+    <item android:id="@+id/action_save"
+        android:title="Save"
+        android:orderInCategory="98"
+        app:showAsAction="always"
+        android:icon="@drawable/action_save"/>
+    <item android:id="@+id/action_edit_category"
+        android:title="Edit Category"
+        android:orderInCategory="102"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/pencil"/>
+
+</menu>
