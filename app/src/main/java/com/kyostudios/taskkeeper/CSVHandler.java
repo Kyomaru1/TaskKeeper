@@ -33,20 +33,23 @@ public class CSVHandler {
 
     public void csvRead() {
         //takes file from constructor, and stores it into File f.
-        File f = new File(String.valueOf(file));
+        File f = new File(String.valueOf(URL));
         //counts the number of files in the directory that houses file f
-        int countFiles = countFiles(f);
+        int countFiles = countFiles(URL);
         if (countFiles > 0) {
             //generates a list of files in the directory
             File[] list = f.listFiles();
+            List<String> tempcategories = new ArrayList<>();
             for(File file : list){//for each file in the list, get their name,
                 String name = file.getName();//make a substring without the extension,
                 String nameSansExtension = name.substring(0, name.lastIndexOf("."));
-                categories.add(nameSansExtension);//add to categories
+
+                tempcategories.add(nameSansExtension);//add to categories
 
                 //categories will be picked up by the main activity to be the list that holds the
                 //values for the navigationDrawer
             }
+            categories = tempcategories;
         }
         else { //no files in directory
             try {
@@ -59,14 +62,15 @@ public class CSVHandler {
 
 
         try {
+            List<List> tempCollection = new ArrayList<>();
             File[] list = f.listFiles();
             for(File file : list) {//for each file in the list
                 InputStream inputStream = new FileInputStream(file);
                 CSVFile csvFile = new CSVFile(inputStream);//make a new csvFile object
                 taskList = csvFile.read();//read the data from the file into a list
-                collection.add(taskList);//and store that list into the collection
+                tempCollection.add(taskList);//and store that list into the collection
             }
-
+            collection = tempCollection;
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -116,12 +120,11 @@ public class CSVHandler {
         }
     }
 
-    public int countFiles(File f){
-
-        File[] list = f.listFiles();
+    public int countFiles(String file){
+        File f = new File(String.valueOf(file));
         int count = 0;
-        for (File file :list) {
-            String name = file.getName();
+        for (File fileEntry :f.listFiles()) {
+            String name = fileEntry.getName();
             if (name.endsWith(".csv")){
                 count = count + 1;
             }

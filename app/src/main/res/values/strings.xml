@@ -5,4 +5,6 @@
     <string name="about_text_title">TaskKeeper</string>
     <string name="about_text_copyright">&#169;2016</string>
     <string name="about_text_author">Author: Drew Ardner</string>
+    <string name="openDrawer">Open Drawer</string>
+    <string name="closeDrawer">Close Drawer</string>
 </resources>
