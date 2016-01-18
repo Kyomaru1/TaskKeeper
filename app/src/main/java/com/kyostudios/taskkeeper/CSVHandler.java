@@ -14,14 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Inflater;
 
-/**
- * Created by Drew on 1/15/2016.
- */
+
 public class CSVHandler {
     String file;
     String URL;
     Context context;
     LayoutInflater inflater;
+    List<String> categories;
+    List taskList;
+    List<List> collection;
 
     public CSVHandler(String file,String URL, Context applicationContext, LayoutInflater layoutInflater) {
         this.file = file;
@@ -30,33 +31,46 @@ public class CSVHandler {
         inflater = layoutInflater;
     }
 
-    public List csvRead() {
+    public void csvRead() {
+        //takes file from constructor, and stores it into File f.
         File f = new File(String.valueOf(file));
+        //counts the number of files in the directory that houses file f
+        int countFiles = countFiles(f);
+        if (countFiles > 0) {
+            //generates a list of files in the directory
+            File[] list = f.listFiles();
+            for(File file : list){//for each file in the list, get their name,
+                String name = file.getName();//make a substring without the extension,
+                String nameSansExtension = name.substring(0, name.lastIndexOf("."));
+                categories.add(nameSansExtension);//add to categories
 
-        if (f.exists()) {
-
+                //categories will be picked up by the main activity to be the list that holds the
+                //values for the navigationDrawer
+            }
         }
-        else {
+        else { //no files in directory
             try {
-                copyFileFromAssets(context, "sample.csv", file);
+                copyFileFromAssets(context, "sample.csv", file);//copy the sample file 'sample.csv' to the file location
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        List taskList = null;
+
         try {
-            InputStream inputStream = new FileInputStream(file);
-            CSVFile csvFile = new CSVFile(inputStream);
-            taskList = csvFile.read();
+            File[] list = f.listFiles();
+            for(File file : list) {//for each file in the list
+                InputStream inputStream = new FileInputStream(file);
+                CSVFile csvFile = new CSVFile(inputStream);//make a new csvFile object
+                taskList = csvFile.read();//read the data from the file into a list
+                collection.add(taskList);//and store that list into the collection
+            }
 
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-        return taskList;
     }
 
     static public void copyFileFromAssets(Context context, String file, String dest) throws Exception

@@ -1,11 +1,14 @@
 package com.kyostudios.taskkeeper;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +17,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
@@ -31,16 +37,27 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    String csvDeliminator = ",,";
-
     String mFileUrl = "/taskkeeper/default.csv";
     String file = Environment.getExternalStorageDirectory().getPath() + mFileUrl;
-    File mDirectory = new File(Environment.getExternalStorageDirectory().getPath() + "/taskkeeper/");
+    File mFile = new File(Environment.getExternalStorageDirectory().getPath() + mFileUrl);
+
     List taskList;
     List<TaskHolder> listTaskHolder;
+    List<List> listCollection;
+    List<TaskAdapter> listTaskCollections;
+    List<TaskHolder> newListTaskHolder;
     TaskAdapter taskAdapter;
+
     RecyclerView mRecyclerViewList;
+
     TaskHolder tempTask;
+    int startPosition = 0;
+
+    DrawerLayout mDrawerLayout;
+    ListView mListView;
+    List<String> categories;
+    ActionBarDrawerToggle mDrawerToggle;
+
 
     private GoogleApiClient client;
 
@@ -60,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
         mRecyclerViewList = (RecyclerView) findViewById(R.id.ListColection);
         listTaskHolder = new ArrayList<>();
 
@@ -70,30 +88,120 @@ public class MainActivity extends AppCompatActivity {
         }
         if (success) {
             CSVHandler csvHandler = new CSVHandler(file, mFileUrl,getApplicationContext(), getLayoutInflater());
-            taskList = csvHandler.csvRead();
-
-            for (int i = 0; i <= taskList.size() - 1; i++) {
-                String[] holder = (String[]) taskList.get(i);
-                String task = holder[0].trim();
-                String color = holder[1].trim();
-                boolean done = Boolean.valueOf(holder[2].trim());
-
-                TaskHolder newTask = new TaskHolder(getApplicationContext(), getLayoutInflater(), task, color, done, getSupportFragmentManager());
-
-                listTaskHolder.add(newTask);
+            int countFiles = csvHandler.countFiles(mFile);
+            if(countFiles == 0){
 
             }
-            taskAdapter = new TaskAdapter(listTaskHolder);
-            mRecyclerViewList.setAdapter(taskAdapter);
-            mRecyclerViewList.setLayoutManager(new LinearLayoutManager(this));
+            else{
+                csvHandler.csvRead();
+                categories = csvHandler.categories;//retrieve the categories list from the CSVHandler
+                listCollection = csvHandler.collection;//retrieve collection list from the CSVHandler
+
+                for(int i = 0; i<= listCollection.size() - 1; i++) {
+                    taskList = listCollection.get(i);//Assign taskList to taskList at position i in listCollection
+                    for (int j = 0; j <= taskList.size() - 1; j++) {
+                        String[] holder = (String[]) taskList.get(j);//Assign holder to String array item at position j in taskList
+                        String task = holder[0].trim();
+                        String color = holder[1].trim();
+                        boolean done = Boolean.valueOf(holder[2].trim());
+
+                        TaskHolder newTask = new TaskHolder(getApplicationContext(), getLayoutInflater(), task, color, done, getSupportFragmentManager());
+                        newListTaskHolder = new ArrayList<>();//make new temporary ArrayList for taskHolders
+                        newListTaskHolder.add(newTask);//add new TaskHolder to array
+
+                    }
+                    TaskAdapter newTaskAdapter = new TaskAdapter(newListTaskHolder);//create new TaskAdapter using newListTaskHolder
+                    listTaskCollections.add(newTaskAdapter);//add newTaskAdapter to listTaskCollection
+
+                    /*
+                        so far, if everything is done correctly, the structure of listTaskCollections
+                         should look like this, given 3 files with 3 tasks in each file.
+
+                         listTaskCollections
+                            |_TaskAdapter
+                            |    |_TaskHolder
+                            |    |_TaskHolder
+                            |    |_TaskHolder
+                            |_TaskAdapter
+                            |    |_TaskHolder
+                            |    |_TaskHolder
+                            |    |_TaskHolder
+                            |_TaskAdapter
+                                 |_TaskHolder
+                                 |_TaskHolder
+                                 |_TaskHolder
+
+                            The categories list should also contain the same ammount of entries as there
+                            are TaskAdapters in the listTaskCollections.
+
+                            When a navigationDrawerItem is selected, the position selected will be used
+                            to get the TaskAdapter from the appropriate position in the taskCollection.
+                            This adapter will then be set to the RecyclerView, thus changing the DataSet.
+                            RecyclerView will be notified of this, and the View will be refreshed.
+
+                            When the app is started, the app will open the first TaskAdapter in the list
+
+                     */
+
+                }
+                taskAdapter = (TaskAdapter) listCollection.get(0);
+                mRecyclerViewList.setAdapter(taskAdapter);
+                mRecyclerViewList.setLayoutManager(new LinearLayoutManager(this));
+
+                /*for (int i = 0; i <= taskList.size() - 1; i++) {
+                    String[] holder = (String[]) taskList.get(i);
+                    String task = holder[0].trim();
+                    String color = holder[1].trim();
+                    boolean done = Boolean.valueOf(holder[2].trim());
+
+                    TaskHolder newTask = new TaskHolder(getApplicationContext(), getLayoutInflater(), task, color, done, getSupportFragmentManager());
+
+                    listTaskHolder.add(newTask);
+
+                }
+                taskAdapter = new TaskAdapter(listTaskHolder);
+                mRecyclerViewList.setAdapter(taskAdapter);
+                mRecyclerViewList.setLayoutManager(new LinearLayoutManager(this));*/
+            }
+
         } else {
             Log.d("Abandon all hope, ye who enter", "ABANDON");
         }
+//NavigationDrawer code below:
+//--------------------------------------------------------------------------------------------------
+        String[] navigationCategories = (String[]) categories.toArray();
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        ListView drawerList = (ListView) findViewById(R.id.left_drawer);
 
+        drawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, navigationCategories));
+        drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+            }
+        });
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.dotsvertical, R.string.drawer_open, R.string.drawer_close){
+            public void onDrawerClosed(View view){
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu();
+            }
+            public void onDrawerOpened(View view){
+                super.onDrawerOpened(view);
+                invalidateOptionsMenu();
+            }
+        };
+
+        drawerLayout.setDrawerListener(mDrawerToggle);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
 
     @Override
@@ -102,6 +210,13 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
