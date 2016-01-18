@@ -62,7 +62,13 @@ public class TaskHolder extends LinearLayout implements View.OnClickListener{
 
     @Override
     public void onClick(View view) {
-        CreateChoiceDialogFragment cdf = new CreateChoiceDialogFragment();
-        cdf.show(fm, "fragment_create");
+    }
+
+    public void setTaskText(String taskText) {
+        textForTask = taskText;
+    }
+
+    public void setColor(String taskColor){
+        colorForTask = taskColor;
     }
 }

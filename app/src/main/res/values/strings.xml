@@ -2,4 +2,7 @@
     <string name="app_name">Task Keeper</string>
     <string name="action_settings">Settings</string>
     <string name="vertical_ellipsis">&#8942;</string>
+    <string name="about_text_title">TaskKeeper</string>
+    <string name="about_text_copyright">&#169;2016</string>
+    <string name="about_text_author">Author: Drew Ardner</string>
 </resources>

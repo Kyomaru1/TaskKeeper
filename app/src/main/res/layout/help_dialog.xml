@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/textAppearanceLarge"
+            android:textSize="24sp"
+            android:text="Help"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/textAppearanceSmall"
+            android:text="Welcome to TaskKeeper. This section is dedicated to trying to provide help to new users, like yourself. Let's go over some of the basics."/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="First and foremost, if you are starting the app for the first time, you may have noticed the task list is already populated with some tasks. That’s normal. They’re just there to help get you started."
+            android:id="@+id/textView3" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="You can go ahead and delete them if you want. Just mark them all done, and click the ‘Delete Done’ button that’s located on the Toolbar."
+            android:id="@+id/textView4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="If you want to add new tasks, just touch the little ‘+’ button floating down in the corner. Enter the task’s text, and pick a priority level (High, Medium, Low, or None.) Click ‘OK’ and it will add the task to the list."
+            android:id="@+id/textView5" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="If you made a mistake and want to fix it, just tap the 3-dot menu button on the task and it will let you edit it. You can change the priority of a task this way too."
+            android:id="@+id/textView6" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="And, if you need to keep tasks organized by category or type, you can make new Lists to keep all your tasks on. Just open the Navigation Drawer off to the left (either swipe in or tap the 3-bar icon on the Toolbar) and press ‘+Add List’ down at the bottom."
+            android:id="@+id/textView7" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="That’s also where you can switch the list your currently working with by the way. Just tap a name on that list, and it’ll pull up all the tasks stored in there. Say for instance, a grocery list."
+            android:id="@+id/textView8" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Advanced"
+            android:id="@+id/textView9" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Now, let’s say you want to add new tasks to your list, but you want to do it on your computer. It’s pretty simple to do.
+First, open your phone’s storage through your computer, and navigate to your Storage. This’ll be on the phone’s storage. Once there, just open the ‘Taskkeeper’ folder, and you’ll see some files. They all end in ‘.csv’ which means ‘Comma Separated Values.’ To add a new task, just open the CSV file with the name of the list you want to edit (groceries.csv for your grocery list, for instance) type out the task in the following style:
+‘Text that will be your task’,,’Color’,,’Done’
+Let’s go into the separate parts.
+    ‘Text that will be your task’: This is the text that shows up on your task.
+    ‘Color’: This is the color of the task. You have four options to choose from; Red, Yellow, Green, none
+    ‘Done’: This states if the task is done. Two choices, true or false.
+
+And that’s it. Save the file, relaunch Taskkeeper, and it should show any changes you make. If you need to add new task lists from your computer, just make a CSV style and copy it over to the Taskkeeper folder. Whatever you name it will be the category name. "
+            android:id="@+id/textView10" />
+    </LinearLayout>
+
+</ScrollView>

@@ -7,7 +7,7 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/taskTextEdit"
+        android:id="@+id/taskTextAdd"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="8dp"
@@ -17,7 +17,7 @@
     <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/taskTextEdit"
+        android:layout_below="@+id/taskTextAdd"
         android:layout_centerHorizontal="true"
         android:id="@+id/radioGroup">
 
@@ -67,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cancel"
-        android:id="@+id/negative_button_edit"
+        android:id="@+id/negative_button_add"
         style="?android:attr/borderlessButtonStyle"
         android:layout_below="@+id/radioGroup"
         android:layout_alignParentLeft="true"
@@ -77,8 +77,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="OK"
-        android:id="@+id/positive_button_create"
-        android:layout_alignTop="@+id/negative_button_edit"
+        android:id="@+id/positive_button_add"
+        android:layout_alignTop="@+id/negative_button_add"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         style="?android:attr/borderlessButtonStyle"/>

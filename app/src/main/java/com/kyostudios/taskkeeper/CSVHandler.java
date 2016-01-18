@@ -63,7 +63,7 @@ public class CSVHandler {
     {
         InputStream in = null;
         OutputStream fout = null;
-        int count = 0;
+        int count;
 
         try
         {
@@ -114,5 +114,10 @@ public class CSVHandler {
 
         }
         return count;
+    }
+
+    public File[] returnFilesInDirectory(File f){
+        File[] list = f.listFiles();
+        return list;
     }
 }

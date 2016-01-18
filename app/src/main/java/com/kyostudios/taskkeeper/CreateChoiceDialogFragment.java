@@ -17,7 +17,7 @@ public class CreateChoiceDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.create_choice_dialog, viewGroup, false);
 
         Button cancel;
-        cancel = (Button) view.findViewById(R.id.cancelButton);
+        cancel = (Button) view.findViewById(R.id.negative_button_edit);
         getDialog().setTitle("Create...");
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override

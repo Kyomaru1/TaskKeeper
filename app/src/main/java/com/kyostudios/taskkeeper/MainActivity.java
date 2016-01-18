@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -24,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     List<TaskHolder> listTaskHolder;
     TaskAdapter taskAdapter;
     RecyclerView mRecyclerViewList;
+    TaskHolder tempTask;
 
     private GoogleApiClient client;
 
@@ -51,7 +54,10 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showCreateDialog();
+                CreateNewTask cnt = new CreateNewTask(taskAdapter, taskList);
+                cnt.show(getSupportFragmentManager(), "fragment_create");
+                Toast.makeText(MainActivity.this, "Executed after dialog close", Toast.LENGTH_SHORT).show();
+
             }
         });
         mRecyclerViewList = (RecyclerView) findViewById(R.id.ListColection);
@@ -110,43 +116,28 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if(id == R.id.action_about){
+            AboutDialog abd = new AboutDialog();
+            abd.show(getSupportFragmentManager(),"fragment_about");
             return true;
         }
         if(id == R.id.action_edit_category){
-
+            return true;
         }
         if(id == R.id.action_save){
             try {
-                FileOutputStream fileOutputStream = new FileOutputStream(file, false);
-
-                for(int i = 0; i <= taskList.size() - 1; i++){
-                    String[] holder = (String[]) taskList.get(i);
-                    String taskText = holder[0].trim();
-                    String colorText = holder[1].trim();
-                    String done = holder[2].trim();
-                    String outputLine = taskText + csvDeliminator + colorText + csvDeliminator + done + "\n";
-                    byte[] buffer = outputLine.getBytes();
-                    fileOutputStream.write(buffer);
-                    fileOutputStream.flush();
-                }
-
-                fileOutputStream.close();
+                save(file);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
                 e.printStackTrace();
             }
 
         }
+        if(id == R.id.action_help){
+            HelpDialog helpDialog = new HelpDialog();
+            helpDialog.show(getSupportFragmentManager(), "fragment_help");
+        }
 
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void showEditDialog() {
-        EditDialogFragment edf = new EditDialogFragment();
-        FragmentManager fm = getSupportFragmentManager();
-        edf.show(fm, "fragment_edit");
     }
 
     public void showCreateDialog() {
@@ -163,17 +154,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void writeToFile(List data) {
+    @Override
+    public void onPause(){
+        super.onPause();
         try {
-            //This line isn't working. Figure it out. Copying Error output to file.
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(getApplicationContext().openFileOutput(file, Context.MODE_PRIVATE));
-            for (int i = 0; i <= data.size() - 1; i++) {
-                outputStreamWriter.write(data.get(i).toString() + "\r\n");
-            }
-
-            outputStreamWriter.close();
-        } catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
+            save(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -215,18 +202,51 @@ public class MainActivity extends AppCompatActivity {
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+
+        try{
+            save(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deleteChecked(List<TaskHolder> taskList){
-        for(int i = 0; i <= taskAdapter.getItemCount() - 1; i++){
+        int size = listTaskHolder.size();
+        for(int i = size - 1; i >= 0; i--){
             boolean done = taskList.get(i).getDone();
             if(done){
                 taskList.remove(i);
                 taskAdapter.notifyItemRemoved(i);
+                taskAdapter.notifyItemRangeRemoved(i, taskAdapter.getItemCount());
             }
-            else{
 
-            }
         }
     }
+
+    public void receiveTempTaskHolder(TaskHolder task){
+        tempTask = task;
+        listTaskHolder.add(task);
+        int itemAddPosition = listTaskHolder.size() - 1;
+        taskAdapter.notifyItemInserted(itemAddPosition);
+    }
+
+    public void modifyAtTaskAtPosition(int position){
+        taskAdapter.notifyItemChanged(position);
+    }
+
+    public void save(String fileName) throws FileNotFoundException {
+        try {
+            PrintWriter pw = new PrintWriter(new FileOutputStream(fileName));
+            for(TaskHolder task : listTaskHolder){
+                String out = task.getTaskText() + ",," + task.getColorForTask() + ",," + Boolean.toString(task.getDone()) +"\n";
+                pw.print(out);
+            }
+            pw.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
 }
