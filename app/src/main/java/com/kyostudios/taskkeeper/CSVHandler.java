@@ -1,7 +1,10 @@
 package com.kyostudios.taskkeeper;
 
 import android.content.Context;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Inflater;
@@ -49,7 +53,7 @@ public class CSVHandler {
                 //categories will be picked up by the main activity to be the list that holds the
                 //values for the navigationDrawer
             }
-            categories = tempcategories;
+            this.categories = tempcategories;
         }
         else { //no files in directory
             try {
@@ -136,5 +140,27 @@ public class CSVHandler {
     public File[] returnFilesInDirectory(File f){
         File[] list = f.listFiles();
         return list;
+    }
+
+    public void makeNewFile(String directory, String fileName, ArrayAdapter arrayAdapter, ListView transferedLayout) throws FileNotFoundException {
+        PrintWriter pw = new PrintWriter(new FileOutputStream(directory));
+        pw.write("");
+        MainActivity main = new MainActivity();
+        ArrayAdapter transferAdapter = arrayAdapter;
+        File f = new File(String.valueOf(URL));
+        File[] list = f.listFiles();
+        List<String> tempcategories = new ArrayList<>();
+
+        for(File file : list){//for each file in the list, get their name,
+            String name = file.getName();//make a substring without the extension,
+            String nameSansExtension = name.substring(0, name.lastIndexOf("."));
+
+            tempcategories.add(nameSansExtension);//add to categories
+
+            //categories will be picked up by the main activity to be the list that holds the
+            //values for the navigationDrawer
+        }
+
+        main.addCategory(fileName, tempcategories, context, transferedLayout);
     }
 }

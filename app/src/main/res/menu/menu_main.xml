@@ -25,5 +25,9 @@
         android:title="Help"
         android:orderInCategory="101"
         app:showAsAction="never"/>
+    <item android:id="@+id/action_add_category"
+        android:title="Add Category"
+        android:orderInCategory="103"
+        app:showAsAction="never"/>
 
 </menu>

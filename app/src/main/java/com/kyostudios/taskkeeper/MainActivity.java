@@ -2,7 +2,6 @@ package com.kyostudios.taskkeeper;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -20,33 +19,30 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    String mFileUrl = "/taskkeeper/default.csv";
-    String file = Environment.getExternalStorageDirectory().getPath() + mFileUrl;
-    File mFile = new File(Environment.getExternalStorageDirectory().getPath() + mFileUrl);
-    String directory = Environment.getExternalStorageDirectory().getPath() + "/taskkeeper/";
+    String fileExtension = ".csv";
+    String mDefaultFileUrl = "/taskkeeper/default.csv";
+    String file = Environment.getExternalStorageDirectory().getPath();
+    File mFile = new File(Environment.getExternalStorageDirectory().getPath());
+    String directory = Environment.getExternalStorageDirectory().getPath() + "/taskkeeper";
+    CSVHandler csvHandler;
 
     List taskList;
     List<TaskHolder> listTaskHolder;
     List<List> listCollection;
     List<TaskAdapter> listTaskCollections;
+    List<TaskAdapter> tempListTaskCollections = new ArrayList<>();
     List<TaskHolder> newListTaskHolder;
     TaskAdapter taskAdapter;
 
@@ -59,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
     ListView mListView;
     List<String> categories;
     ActionBarDrawerToggle mDrawerToggle;
-
+    ArrayAdapter arrayAdapter;
+    ListView drawerList;
 
     private GoogleApiClient client;
 
@@ -89,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             success = folder.mkdir();
         }
         if (success) {
-            CSVHandler csvHandler = new CSVHandler(file, directory ,getApplicationContext(), getLayoutInflater());
+            csvHandler = new CSVHandler(file + mDefaultFileUrl, directory ,getApplicationContext(), getLayoutInflater());
             csvHandler.csvRead();
             int countFiles = csvHandler.countFiles(directory);
             if(countFiles == 0){
@@ -103,13 +100,13 @@ public class MainActivity extends AppCompatActivity {
                 csvHandler.csvRead();
                 categories = csvHandler.categories;//retrieve the categories list from the CSVHandler
                 listCollection = csvHandler.collection;//retrieve collection list from the CSVHandler
-
                 for(int i = 0; i<= listCollection.size() - 1; i++) {
                     taskList = listCollection.get(i);//Assign taskList to taskList at position i in listCollection
-                    List<TaskAdapter> tempListTaskCollections = new ArrayList<>();
+
                     newListTaskHolder = new ArrayList<>();
                     for (int j = 0; j <= taskList.size() - 1; j++) {
-                        String[] holder = (String[]) taskList.get(j);//Assign holder to String array item at position j in taskList
+                        String[] holder;//Assign holder to String array item at position j in taskList
+                        holder = (String[]) taskList.get(j);
                         String task = holder[0].trim();
                         String color = holder[1].trim();
                         boolean done = Boolean.valueOf(holder[2].trim());
@@ -120,9 +117,9 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                     listTaskHolder = newListTaskHolder;
-                    TaskAdapter newTaskAdapter = new TaskAdapter(newListTaskHolder);//create new TaskAdapter using newListTaskHolder
+                    TaskAdapter newTaskAdapter = new TaskAdapter(listTaskHolder);//create new TaskAdapter using newListTaskHolder
                     tempListTaskCollections.add(newTaskAdapter);//add newTaskAdapter to listTaskCollection
-                    listTaskCollections = tempListTaskCollections;
+
                     /*
                         so far, if everything is done correctly, the structure of listTaskCollections
                          should look like this, given 3 files with 3 tasks in each file.
@@ -154,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
                      */
 
                 }
+                listTaskCollections = tempListTaskCollections;
                 taskAdapter = listTaskCollections.get(0);
                 mRecyclerViewList.setAdapter(taskAdapter);
                 mRecyclerViewList.setLayoutManager(new LinearLayoutManager(this));
@@ -167,32 +165,37 @@ public class MainActivity extends AppCompatActivity {
 //--------------------------------------------------------------------------------------------------
         String[] navigationCategories;
         navigationCategories = categories.toArray(new String[0]);
-        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
-        final ListView drawerList = (ListView) findViewById(R.id.left_drawer);
-
-        drawerList.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, navigationCategories));
+        this.mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+        this.arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, navigationCategories);
+        drawerList.setAdapter(arrayAdapter);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
                 taskAdapter = listTaskCollections.get(position);
                 mRecyclerViewList.setAdapter(taskAdapter);
+                listTaskHolder = taskAdapter.mTaskHolder;
                 taskAdapter.notifyDataSetChanged();
                 currentPosition = position;
-                drawerLayout.closeDrawer(drawerList);
+                mDrawerLayout.closeDrawer(drawerList);
             }
         });
-        mDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, drawerLayout, toolbar, R.string.openDrawer, R.string.closeDrawer){
+        mDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mDrawerLayout, toolbar, R.string.openDrawer, R.string.closeDrawer){
             public void onDrawerClosed(View view){
                 super.onDrawerClosed(view);
+                arrayAdapter.notifyDataSetChanged();
+                drawerList.setAdapter(arrayAdapter);
                 invalidateOptionsMenu();
             }
             public void onDrawerOpened(View view){
                 super.onDrawerOpened(view);
+                arrayAdapter.notifyDataSetChanged();
+                drawerList.setAdapter(arrayAdapter);
                 invalidateOptionsMenu();
             }
         };
 
-        drawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -234,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(id == R.id.action_about){
             AboutDialog abd = new AboutDialog();
-            abd.show(getSupportFragmentManager(),"fragment_about");
+            abd.show(getSupportFragmentManager(), "fragment_about");
             return true;
         }
         if(id == R.id.action_edit_category){
@@ -242,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(id == R.id.action_save){
             try {
-                save(file);
+                save(directory + "/" + categories.get(currentPosition).toString() + fileExtension);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -251,6 +254,11 @@ public class MainActivity extends AppCompatActivity {
         if(id == R.id.action_help){
             HelpDialog helpDialog = new HelpDialog();
             helpDialog.show(getSupportFragmentManager(), "fragment_help");
+        }
+
+        if(id == R.id.action_add_category){
+            AddCategory addCategory = new AddCategory(arrayAdapter, drawerList);
+            addCategory.show(getSupportFragmentManager(), "fragment_add_category");
         }
 
 
@@ -275,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         try {
-            save(file);
+            save(directory + "/" + categories.get(currentPosition) + fileExtension);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -293,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         try{
-            save(file);
+            save(directory + "/" +categories.get(currentPosition).toString() + fileExtension);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -313,10 +321,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void receiveTempTaskHolder(TaskHolder task){
-        tempTask = task;
+        List<List> tempListCollection = listCollection;
+
+        listTaskHolder = listTaskCollections.get(currentPosition).mTaskHolder;
         listTaskHolder.add(task);
-        int itemAddPosition = listTaskHolder.size() - 1;
-        taskAdapter.notifyItemInserted(itemAddPosition);
+        listCollection.set(currentPosition, listTaskHolder);
+        taskAdapter.notifyItemRangeInserted(listCollection.get(currentPosition).size() - 1, 1);
     }
 
     public void modifyAtTaskAtPosition(int position){
@@ -337,5 +347,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    public void addCategory(String fileName, List<String> categoryCollection,  Context context, ListView transferedLayout){
+        List<String> tempCategories = categoryCollection;
+        tempCategories.add(fileName);
+        categories = tempCategories;
+        String [] stringCategories = tempCategories.toArray(new String[0]);
+        arrayAdapter = new ArrayAdapter(context, android.R.layout.simple_list_item_1,stringCategories);
+        drawerList = transferedLayout;
+        drawerList.setAdapter(arrayAdapter);
+        arrayAdapter.notifyDataSetChanged();
+    }
+
 
 }

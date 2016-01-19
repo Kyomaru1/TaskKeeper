@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     private FragmentManager fm;
-    private List<TaskHolder> mTaskHolder;
+    public  List<TaskHolder> mTaskHolder;
     private Context context;
 
     public TaskAdapter(List<TaskHolder> list){
